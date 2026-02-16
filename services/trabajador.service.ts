@@ -1,5 +1,5 @@
 import { http } from "@/lib/http";
-import { Trabajador, TrabajadorPOST } from "@/types/domain/trabajador";
+import { Trabajador, TrabajadorPatch, TrabajadorPOST } from "@/types/domain/trabajador";
 
 export const TrabajadorService = {
     getAll: () =>
@@ -12,11 +12,12 @@ export const TrabajadorService = {
         http<string>(`/api/trabajadores`, {
             method: "POST",
             data: payload
-        })
+        }),
 
-    //     create: async (id: number, payload: PatchUserRequest) =>
-    // http<PatchUserResponse>(`/api/Usuarios/editarUsuario?id=${id}`, {
-    //     method: "PATCH",
-    //     data: payload
-    // })
+
+    edit: async (id: number, payload: TrabajadorPatch) =>
+        http<string>(`/api/trabajadores/${id}`, {
+            method: "PATCH",
+            data: payload
+        })
 };

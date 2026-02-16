@@ -20,3 +20,15 @@ export interface TrabajadorPOST {
     fotoUrl: string;
     direccion: string;
 }
+
+
+export interface TrabajadorPatch {
+    nombres?: string;
+    apellidos?: string;
+    tipoDocumentoId?: number;
+    numeroDocumento?: string;
+    fechaNacimiento?: string;
+    sexo?: string;
+    fotoUrl?: string;
+    direccion?: string;
+}

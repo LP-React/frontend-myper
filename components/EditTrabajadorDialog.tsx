@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -17,11 +17,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { TrabajadorPOST } from "@/types/domain/trabajador";
+import { Trabajador, TrabajadorPatch } from "@/types/domain/trabajador";
 import { TrabajadorService } from "@/services/trabajador.service";
 import axios from "axios";
-import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { Pencil } from "lucide-react";
+
+interface EditTrabajadorDialogProps {
+    trabajador: Trabajador;
+    onUpdated?: () => void; // Callback para recargar la lista
+}
 
 const uploadToCloudinary = async (file: File): Promise<string> => {
     const formData = new FormData();
@@ -33,7 +38,7 @@ const uploadToCloudinary = async (file: File): Promise<string> => {
     return res.data.secure_url;
 };
 
-export function CreateTrabajadorDialog() {
+export function EditTrabajadorDialog({ trabajador, onUpdated }: EditTrabajadorDialogProps) {
     const [nombres, setNombres] = useState("");
     const [apellidos, setApellidos] = useState("");
     const [tipoDocumento, setTipoDocumento] = useState("");
@@ -44,6 +49,35 @@ export function CreateTrabajadorDialog() {
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
+
+    useEffect(() => {
+        if (!trabajador) return;
+
+        setNombres(trabajador.nombres);
+        setApellidos(trabajador.apellidos);
+
+        // Directamente asignamos string "1" | "2" | "3" según el tipo de documento
+        setTipoDocumento(
+            trabajador.tipoDocumento === "DNI" ? "1" :
+                trabajador.tipoDocumento === "Pasaporte" ? "2" :
+                    ""
+        );
+
+        setNumeroDocumento(trabajador.numeroDocumento);
+        setSexo(trabajador.sexo);
+        if (trabajador.fechaNacimiento) {
+            const fecha = new Date(trabajador.fechaNacimiento);
+            const yyyy = fecha.getFullYear();
+            const mm = String(fecha.getMonth() + 1).padStart(2, "0"); // meses 0-11
+            const dd = String(fecha.getDate()).padStart(2, "0");
+            setFechaNacimiento(`${yyyy}-${mm}-${dd}`);
+        } else {
+            setFechaNacimiento("");
+        }
+        setDireccion(trabajador.direccion);
+        setAvatarPreview(trabajador.fotoUrl ?? null);
+        setAvatarFile(null);
+    }, [trabajador]);
 
 
     const limpiarFormulario = () => {
@@ -96,16 +130,15 @@ export function CreateTrabajadorDialog() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!validarFormulario()) return;
 
         try {
-            let fotoUrl = "";
+            let fotoUrl = trabajador.fotoUrl ?? "";
             if (avatarFile) {
                 fotoUrl = await uploadToCloudinary(avatarFile);
             }
 
-            const payload: TrabajadorPOST = {
+            const payload: TrabajadorPatch = {
                 nombres,
                 apellidos,
                 tipoDocumentoId: Number(tipoDocumento),
@@ -116,33 +149,30 @@ export function CreateTrabajadorDialog() {
                 fotoUrl,
             };
 
-            await TrabajadorService.create(payload);
-
-            toast.success("Trabajador creado con éxito!");
+            await TrabajadorService.edit(trabajador.trabajadorId, payload);
+            toast.success("Trabajador actualizado con éxito!");
             limpiarFormulario();
             setOpen(false);
+            onUpdated?.(); // Recargar lista
         } catch (err) {
-            console.error("Error creando trabajador:", err);
-            toast.error("Hubo un error al crear el trabajador.");
+            console.error("Error actualizando trabajador:", err);
+            toast.error("Hubo un error al actualizar el trabajador.");
         }
     };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>
-                    <span className="material-icons-outlined text-sm">
-                        <Plus />
-                    </span>
-                    Nuevo Trabajador
+                <Button variant="outline" size="sm">
+                    <Pencil />
                 </Button>
             </DialogTrigger>
 
             <DialogContent className="w-200 sm:max-w-none">
                 <DialogHeader>
-                    <DialogTitle>Registrar Trabajador</DialogTitle>
+                    <DialogTitle>Editar Trabajador</DialogTitle>
                     <DialogDescription>
-                        Complete los datos del nuevo integrante del equipo.
+                        Modifique los datos del trabajador seleccionado.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -152,18 +182,18 @@ export function CreateTrabajadorDialog() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <Label className="mb-2">Nombres</Label>
-                                <Input value={nombres} onChange={(e) => setNombres(e.target.value)} placeholder="Carlos Andrés" />
+                                <Input value={nombres} onChange={(e) => setNombres(e.target.value)} />
                             </div>
                             <div>
                                 <Label className="mb-2">Apellidos</Label>
-                                <Input value={apellidos} onChange={(e) => setApellidos(e.target.value)} placeholder="Pérez García" />
+                                <Input value={apellidos} onChange={(e) => setApellidos(e.target.value)} />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <Label className="mb-2">Tipo de Documento</Label>
-                                <Select onValueChange={(val) => setTipoDocumento(val)}>
+                                <Select value={tipoDocumento} onValueChange={setTipoDocumento}>
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Seleccione" />
                                     </SelectTrigger>
@@ -172,11 +202,12 @@ export function CreateTrabajadorDialog() {
                                         <SelectItem value="2">Pasaporte</SelectItem>
                                     </SelectContent>
                                 </Select>
+
                             </div>
 
                             <div>
                                 <Label className="mb-2">Número de Documento</Label>
-                                <Input value={numeroDocumento} onChange={(e) => setNumeroDocumento(e.target.value)} placeholder="00000000" />
+                                <Input value={numeroDocumento} onChange={(e) => setNumeroDocumento(e.target.value)} />
                             </div>
                         </div>
 
@@ -203,11 +234,11 @@ export function CreateTrabajadorDialog() {
 
                         <div>
                             <Label className="mb-2">Dirección de domicilio</Label>
-                            <Input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Av. Los Pinos 123, Miraflores" />
+                            <Input value={direccion} onChange={(e) => setDireccion(e.target.value)} />
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN - AVATAR */}
+                    {/* RIGHT COLUMN */}
                     <div className="col-span-12 md:col-span-4 flex flex-col items-center gap-4">
                         <Label>Foto de Perfil</Label>
                         <Avatar className="w-32 h-32 border">
@@ -218,7 +249,6 @@ export function CreateTrabajadorDialog() {
                         <Input type="file" accept="image/*" onChange={handleFileChange} />
                     </div>
 
-                    {/* FOOTER */}
                     <DialogFooter className="col-span-12 flex justify-end gap-2">
                         <Button
                             variant="secondary"
@@ -230,7 +260,7 @@ export function CreateTrabajadorDialog() {
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" className="bg-[#137FEC]">Guardar Trabajador</Button>
+                        <Button type="submit" className="bg-[#137FEC]">Guardar Cambios</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
