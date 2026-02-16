@@ -5,9 +5,6 @@ export const TrabajadorService = {
     getAll: () =>
         http<Trabajador[]>("/api/trabajadores"),
 
-    // getByEmail: (email: string) =>
-    //     http<UsuarioApi>(`/api/Usuarios/Buscar-Por-correo/${email}`),
-
     create: async (payload: TrabajadorPOST) =>
         http<string>(`/api/trabajadores`, {
             method: "POST",
@@ -19,5 +16,10 @@ export const TrabajadorService = {
         http<string>(`/api/trabajadores/${id}`, {
             method: "PATCH",
             data: payload
-        })
+        }),
+
+    delete: (id: number) =>
+        http<void>(`/api/trabajadores/${id}`, {
+            method: "DELETE",
+        }),
 };

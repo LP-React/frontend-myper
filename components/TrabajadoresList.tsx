@@ -2,10 +2,11 @@
 
 import { TrabajadorService } from "@/services/trabajador.service";
 import { Trabajador } from "@/types/domain/trabajador";
-import { ChevronLeft, ChevronRight, Pencil, Trash } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { EditTrabajadorDialog } from "./EditTrabajadorDialog";
+import { DeleteTrabajadorDialog } from "./DeleteTrabajadorDialog";
 
 interface TrabajadoresListProps {
   filterSexo?: string;
@@ -112,13 +113,10 @@ export default function TrabajadoresList({ filterSexo = "todos", filterSearch = 
                       }}
                     />
 
-                    <button
-                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                      title="Eliminar"
-                      onClick={() => console.log("Eliminar", t.trabajadorId)}
-                    >
-                      <Trash />
-                    </button>
+                    <DeleteTrabajadorDialog
+                      trabajador={t}
+                      onDeleted={() => TrabajadorService.getAll().then(setData).catch(err => setError(err.message))}
+                    />
                   </div>
                 </td>
               </tr>
