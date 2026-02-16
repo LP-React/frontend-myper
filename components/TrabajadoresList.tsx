@@ -4,6 +4,7 @@ import { TrabajadorService } from "@/services/trabajador.service";
 import { Trabajador } from "@/types/domain/trabajador";
 import { ChevronLeft, ChevronRight, Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface TrabajadoresListProps {
   filterSexo?: string;
@@ -77,11 +78,13 @@ export default function TrabajadoresList({ filterSexo = "todos", filterSearch = 
             {currentData.map((t) => (
               <tr className="hover:bg-primary/5 bg-[#eff6ff] dark:bg-primary/5 transition-colors group" key={t.trabajadorId}>
                 <td className="px-6 py-4">
-                  <img
-                    alt=""
-                    className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-                    src={t.fotoUrl || "https://via.placeholder.com/40"}
-                  />
+                  <Avatar className="w-10 h-10 border">
+                    {t.fotoUrl ? (
+                      <AvatarImage src={t.fotoUrl} alt={t.nombres} />
+                    ) : (
+                      <AvatarFallback>{t.nombres.charAt(0).toUpperCase()}</AvatarFallback>
+                    )}
+                  </Avatar>
                 </td>
                 <td className="px-4 py-4 text-sm font-medium text-slate-700 dark:text-slate-200">{t.nombres}</td>
                 <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{t.apellidos}</td>
@@ -133,8 +136,8 @@ export default function TrabajadoresList({ filterSexo = "todos", filterSearch = 
               key={i + 1}
               onClick={() => goToPage(i + 1)}
               className={`w-9 h-9 flex items-center justify-center rounded-lg font-medium transition-colors ${currentPage === i + 1
-                  ? "bg-primary text-white"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                ? "bg-primary text-white"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
             >
               {i + 1}
