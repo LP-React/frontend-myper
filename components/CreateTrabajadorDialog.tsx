@@ -33,7 +33,11 @@ const uploadToCloudinary = async (file: File): Promise<string> => {
     return res.data.secure_url;
 };
 
-export function CreateTrabajadorDialog() {
+interface CreateTrabajadorDialogProps {
+    onCreated?: () => void;
+}
+
+export function CreateTrabajadorDialog({ onCreated }: CreateTrabajadorDialogProps) {
     const [nombres, setNombres] = useState("");
     const [apellidos, setApellidos] = useState("");
     const [tipoDocumento, setTipoDocumento] = useState("");
@@ -95,37 +99,40 @@ export function CreateTrabajadorDialog() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        if (!validarFormulario()) return;
+    if (!validarFormulario()) return;
 
-        try {
-            let fotoUrl = "";
-            if (avatarFile) {
-                fotoUrl = await uploadToCloudinary(avatarFile);
-            }
-
-            const payload: TrabajadorPOST = {
-                nombres,
-                apellidos,
-                tipoDocumentoId: Number(tipoDocumento),
-                numeroDocumento,
-                sexo,
-                fechaNacimiento,
-                direccion,
-                fotoUrl,
-            };
-
-            await TrabajadorService.create(payload);
-
-            toast.success("Trabajador creado con éxito!");
-            limpiarFormulario();
-            setOpen(false);
-        } catch (err) {
-            console.error("Error creando trabajador:", err);
-            toast.error("Hubo un error al crear el trabajador.");
+    try {
+        let fotoUrl = "";
+        if (avatarFile) {
+            fotoUrl = await uploadToCloudinary(avatarFile);
         }
-    };
+
+        const payload: TrabajadorPOST = {
+            nombres,
+            apellidos,
+            tipoDocumentoId: Number(tipoDocumento),
+            numeroDocumento,
+            sexo,
+            fechaNacimiento,
+            direccion,
+            fotoUrl,
+        };
+
+        await TrabajadorService.create(payload);
+
+        toast.success("Trabajador creado con éxito!");
+        limpiarFormulario();
+        setOpen(false);
+
+        window.location.reload();
+    } catch (err) {
+        console.error("Error creando trabajador:", err);
+        toast.error("Hubo un error al crear el trabajador.");
+    }
+};
+
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
