@@ -163,9 +163,10 @@ export function EditTrabajadorDialog({ trabajador, onUpdated }: EditTrabajadorDi
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <button className="p-1.5 text-slate-400 hover:text-blue-500 rounded-lg transition-all"
+                    title="Eliminar">
                     <Pencil />
-                </Button>
+                </button>
             </DialogTrigger>
 
             <DialogContent className="w-200 sm:max-w-none">

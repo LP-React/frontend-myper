@@ -78,7 +78,10 @@ export default function TrabajadoresList({ filterSexo = "todos", filterSearch = 
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {currentData.map((t) => (
-              <tr className="hover:bg-primary/5 bg-[#eff6ff] dark:bg-primary/5 transition-colors group" key={t.trabajadorId}>
+              <tr
+                className={`hover:bg-white transition-colors group ${t.sexo === "Masculino" ? "bg-blue-200" : t.sexo === "Femenino" ? "bg-orange-200" : ""}`}
+                key={t.trabajadorId}
+              >
                 <td className="px-6 py-4">
                   <Avatar className="w-10 h-10 border">
                     {t.fotoUrl ? (
@@ -93,19 +96,27 @@ export default function TrabajadoresList({ filterSexo = "todos", filterSearch = 
                 <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{t.tipoDocumento}</td>
                 <td className="px-4 py-4 text-sm font-mono text-slate-600 dark:text-slate-400">{t.numeroDocumento}</td>
                 <td className="px-4 py-4 text-sm">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">{t.sexo}</span>
+                  <span
+                    className={`px-2.5 py-1 rounded-full text-xs font-semibold ${t.sexo === "Masculino"
+                        ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                        : t.sexo === "Femenino"
+                          ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+                          : ""
+                      }`}
+                  >
+                    {t.sexo}
+                  </span>
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400 text-center">
                   {new Date(t.fechaNacimiento).toLocaleDateString("es-PE", {
                     day: "2-digit",
                     month: "2-digit",
-                    year: "numeric"
+                    year: "numeric",
                   })}
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400 max-w-[200px] truncate">{t.direccion}</td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    {/* Edit Dialog Trigger */}
                     <EditTrabajadorDialog
                       trabajador={t}
                       onUpdated={() => {
@@ -120,6 +131,7 @@ export default function TrabajadoresList({ filterSexo = "todos", filterSearch = 
                   </div>
                 </td>
               </tr>
+
             ))}
           </tbody>
         </table>
