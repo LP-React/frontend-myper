@@ -5,6 +5,7 @@ import { Trabajador } from "@/types/domain/trabajador";
 import { ChevronLeft, ChevronRight, Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { EditTrabajadorDialog } from "./EditTrabajadorDialog";
 
 interface TrabajadoresListProps {
   filterSexo?: string;
@@ -103,10 +104,19 @@ export default function TrabajadoresList({ filterSexo = "todos", filterSearch = 
                 <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400 max-w-[200px] truncate">{t.direccion}</td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" title="Editar">
-                      <Pencil />
-                    </button>
-                    <button className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Eliminar">
+                    {/* Edit Dialog Trigger */}
+                    <EditTrabajadorDialog
+                      trabajador={t}
+                      onUpdated={() => {
+                        TrabajadorService.getAll().then(setData).catch(err => setError(err.message));
+                      }}
+                    />
+
+                    <button
+                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                      title="Eliminar"
+                      onClick={() => console.log("Eliminar", t.trabajadorId)}
+                    >
                       <Trash />
                     </button>
                   </div>
