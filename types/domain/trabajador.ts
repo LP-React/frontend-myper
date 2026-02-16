@@ -1,12 +1,22 @@
 export interface Trabajador {
-    trabajadorId:    number;
-    nombres:         string;
-    apellidos:       string;
-    tipoDocumento:   string;
+    trabajadorId: number;
+    nombres: string;
+    apellidos: string;
+    tipoDocumento: string;
     numeroDocumento: string;
     fechaNacimiento: Date;
-    sexo:            string;
-    fotoUrl:         string;
-    direccion:       string;
+    sexo: string;
+    fotoUrl: string;
+    direccion: string;
 }
 
+export interface TrabajadorPOST {
+    nombres: string;
+    apellidos: string;
+    tipoDocumentoId: number;
+    numeroDocumento: string;
+    fechaNacimiento: string;
+    sexo: string;
+    fotoUrl: string;
+    direccion: string;
+}
